@@ -17,12 +17,10 @@ You will need the following installed to deploy this (versions I used show in br
 - Terraform (v0.12.24)
 - Powershell Core (v7.0.0)
 - An Azure Subscription
-- An Azure DevOps Account (and the ability to generate Service Connections/Pipelines/Manage Build Agents)
 
 
 ## Getting ready to run Terraform
 
-First you need to generate the certificate that is required by the P2S VPN, run the [CreateVPNCerts.ps1](Terraform/scripts/CreateVPNCerts.ps1) script in powershell to create and register a new self-signed cert.
 In the Terraform folder create a file called terraform.tfvars, this will contain the variables you pass to create your environment.
 The file should contain the following...
 
