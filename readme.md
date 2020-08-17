@@ -55,8 +55,6 @@ and finally run with (note the auto-approve flag skips the manual verification s
     terraform apply -auto-approve
 
 This will take about 20 minutes to provision everything.
-When it is complete you should have 1 build agent configured and active per group in azure DevOps.
-![Configured DevOps Agent](/images/DevOpsConfiguredAgent.png "Configured DevOps Agent")
 
 ## Deploy a sample project
 
