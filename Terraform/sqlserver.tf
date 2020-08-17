@@ -2,8 +2,8 @@ resource "random_password" "sql_password" {
   keepers = {
     resource_group = azurerm_resource_group.spoke.name
   }
-  length = 16
-  special = true
+  length           = 16
+  special          = true
   override_special = "_%@"
 }
 
@@ -48,24 +48,5 @@ resource "azurerm_key_vault_secret" "sqldatabase" {
   key_vault_id = azurerm_key_vault.aks_keyvault.id
 }
 
-resource "azurerm_sql_virtual_network_rule" "allow_aks" {
-  name                = local.sql_firewall_allow_aks_subnet
-  resource_group_name = azurerm_resource_group.spoke.name
-  server_name         = azurerm_sql_server.sql.name
-  subnet_id           = azurerm_subnet.aks.id
-}
 
-resource "azurerm_sql_virtual_network_rule" "allow_vpn" {
-  name                = local.sql_firewall_allow_vpn_subnet
-  resource_group_name = azurerm_resource_group.spoke.name
-  server_name         = azurerm_sql_server.sql.name
-  subnet_id           = azurerm_subnet.vpn.id
-}
-
-resource "azurerm_sql_virtual_network_rule" "allow_bastion" {
-  name                = local.sql_firewall_allow_bastion_subnet
-  resource_group_name = azurerm_resource_group.spoke.name
-  server_name         = azurerm_sql_server.sql.name
-  subnet_id           = azurerm_subnet.bastion.id
-}
 

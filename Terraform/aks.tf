@@ -8,38 +8,64 @@ resource "azurerm_kubernetes_cluster" "aks" {
   location            = azurerm_resource_group.spoke.location
   resource_group_name = azurerm_resource_group.spoke.name
   dns_prefix          = local.aks_name
-  kubernetes_version = "1.16.10"
-  
+  kubernetes_version  = "1.17.9"
+  node_resource_group = local.aks_node_resource_group_name
+
   default_node_pool {
-    name       = "default"
-    node_count = 1
-    vm_size    = "Standard_D2_v2"
-    vnet_subnet_id      = azurerm_subnet.aks.id
+    name           = "default"
+    node_count     = 2
+    vm_size        = "Standard_D2_v2"
+    vnet_subnet_id = azurerm_subnet.aks.id
   }
 
   identity {
     type = "SystemAssigned"
   }
 
-  private_cluster_enabled = true
-
   linux_profile {
     admin_username = "AzureAdmin"
-    ssh_key  {
-      key_data = tls_private_key.aks.public_key_openssh 
+    ssh_key {
+      key_data = tls_private_key.aks.public_key_openssh
+    }
+  }
+  role_based_access_control {
+    enabled = true
+    azure_active_directory {
+      managed                = true
+      admin_group_object_ids = [var.aad-aks-group-id]
     }
   }
 
   network_profile {
-      network_plugin = "azure"      
-      load_balancer_sku = "Standard"
-      outbound_type = "userDefinedRouting"
+    network_plugin = "azure"
+  }
 
-  }
-  role_based_access_control {
+
+
+  addon_profile {
+    azure_policy {
       enabled = true
+    }
+
+    oms_agent {
+      enabled = true
+      log_analytics_workspace_id = azurerm_log_analytics_workspace.loganalytics.id
+    }
   }
-  depends_on = [azurerm_subnet_route_table_association.aks_to_firewall]
+
+  windows_profile {
+    admin_username = local.aks_windows_node_username
+    admin_password = random_password.aks_win_node_password.result
+  }
+}
+
+resource "azurerm_kubernetes_cluster_node_pool" "windows" {
+  name                  = local.aks_windows_node_pool_name
+  kubernetes_cluster_id = azurerm_kubernetes_cluster.aks.id
+  vm_size               = "Standard_DS2_v2"
+  node_count            = 1
+  vnet_subnet_id        = azurerm_subnet.aks.id
+  os_type               = "Windows"
 }
 
 resource "azurerm_role_assignment" "aksacrpull" {
@@ -60,14 +86,18 @@ resource "azurerm_role_assignment" "aks_spoke_network_contributor" {
   principal_id         = azurerm_kubernetes_cluster.aks.identity[0].principal_id
 }
 
+data "azurerm_resource_group" "aks_node_rg" {
+  name = azurerm_kubernetes_cluster.aks.node_resource_group
+}
+
 resource "azurerm_role_assignment" "aks_managed_identity_operator" {
-  scope                = azurerm_kubernetes_cluster.aks.node_resource_group
+  scope                = data.azurerm_resource_group.aks_node_rg.id
   role_definition_name = "Managed Identity Operator"
   principal_id         = azurerm_kubernetes_cluster.aks.identity[0].principal_id
 }
 
 resource "azurerm_role_assignment" "aks_virtual_machine_contributor" {
-  scope                = azurerm_kubernetes_cluster.aks.node_resource_group
+  scope                = data.azurerm_resource_group.aks_node_rg.id
   role_definition_name = "Virtual Machine Contributor"
   principal_id         = azurerm_kubernetes_cluster.aks.identity[0].principal_id
 }

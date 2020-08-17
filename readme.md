@@ -1,21 +1,14 @@
-# Private Azure Kubernetes Cluster with DevOps Build Agents
+# Public Azure Kubernetes Cluster with Linux and Windows NodePools
 
 This repo shows how to provision an environment for working with a private AKS cluster.
 It includes.
-- A Private Link Enabled AKS cluster with outbound traffic routed to a firewall (so no public IP addresses owned by the cluster)
-- An Azure Firewall to control the outbound traffic (with required outbound rules + docker and quay public registries)
+- An AKS cluster
 - 2 virtual networks peered to simulate a hub/spoke model of resource placement
-- A Private Link Enabled Container Registry (ACR) - Note: this is currently in preview!
-- A Private Link Enabled Key Vault - Can be used by AKS as a [secret store](https://github.com/Azure/secrets-store-csi-driver-provider-azure)
-- A Private Link Enabled SQL Azure instance - to show connectivity to network resources
+- A Container Registry (ACR)
+- A Key Vault - Can be used by AKS as a [secret store](https://github.com/Azure/secrets-store-csi-driver-provider-azure)
+- A SQL Azure instance - to show connectivity to network resources
 - An App Gateway - Can be used by AKS as a WAF enabled [ingress controller](https://azure.github.io/application-gateway-kubernetes-ingress/)
-- A Point to Site VPN (for accessing the AKS api without needing the jump off/bastion vm)
 - A Log Analytics workspace
-- A Windows VM configured as a Jump off box/bastion machine for remote access to the network
-- An Ubuntu Linux machine configured as an Azure DevOps build agent with Docker Installed.
-- An Ubuntu Linux machine configured as an Azure DevOps deploy agent with Kubernetes CLI installed.
-
-![Architecture](/images/Architecture.png "Architecture")
 
 ## Pre-requisites
 
@@ -26,17 +19,6 @@ You will need the following installed to deploy this (versions I used show in br
 - An Azure Subscription
 - An Azure DevOps Account (and the ability to generate Service Connections/Pipelines/Manage Build Agents)
 
-## Setting up DevOps
-
-In your Azure DevOps account you will need to create 2 new Build agent pools (Project Settings - Agent Pools)
-![Agent Pools](/images/DevOps%20Build%20Agent.png "Agent Pools")
-
-You will also need to create a Personal Access Token (PAT) so that the build agents can be registered with your DevOps account
-![PAT Token Menu](/images/PAT%20Token%20Menu.png "PAT Token Menu")
-
-![New PAT Token](/images/PAT%20Token%20-%20New%20Token.png "New PAT Token")
-
-I have create my token with access to everything, in a real world scenario you will need to decide the minimum permissions required.
 
 ## Getting ready to run Terraform
 

@@ -22,7 +22,7 @@ resource "azurerm_application_gateway" "appgateway" {
     subnet_id = azurerm_subnet.appgateway.id
   }
 
-    frontend_port {
+  frontend_port {
     name = local.appgateway_frontend_http_port_name
     port = 80
   }
@@ -32,14 +32,14 @@ resource "azurerm_application_gateway" "appgateway" {
     public_ip_address_id = azurerm_public_ip.gateway.id
   }
 
-   http_listener {
+  http_listener {
     name                           = local.appgateway_listener_name
     frontend_ip_configuration_name = local.appgateway_frontend_ipconfig_name
     frontend_port_name             = local.appgateway_frontend_http_port_name
     protocol                       = "Http"
   }
 
-    backend_address_pool {
+  backend_address_pool {
     name = local.appgateway_backend_address_pool_name
   }
 
